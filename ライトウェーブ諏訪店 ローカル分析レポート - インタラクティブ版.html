@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)file:///Users/nishimurarika/Downloads/web_report.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ライトウェーブ諏訪店 ローカル分析レポート - インタラクティブ版</title>
+    <script src="./ライトウェーブ諏訪店 ローカル分析レポート - インタラクティブ版_files/chart.js@3.9.1"></script>
+    <script src="./ライトウェーブ諏訪店 ローカル分析レポート - インタラクティブ版_files/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #F5F3F0 0%, #E8DCC8 100%);
+            color: #3C3C3C;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #5A4D41 0%, #6B5B4F 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        section {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #D4A574;
+        }
+
+        h2 {
+            font-size: 32px;
+            color: #5A4D41;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #D4A574;
+        }
+
+        h3 {
+            font-size: 20px;
+            color: #5A4D41;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #F5F3F0 0%, #E8DCC8 100%);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 3px solid #D4A574;
+        }
+
+        .card h4 {
+            color: #5A4D41;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #8B7D6B;
+            line-height: 1.6;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin: 30px 0;
+        }
+
+        .positioning-map {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 2px solid #D4A574;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #F5F3F0 0%, #E8DCC8 100%);
+            margin: 30px 0;
+        }
+
+        .positioning-item {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .competitor {
+            background: #E8DCC8;
+            color: #5A4D41;
+            border: 2px solid #D4A574;
+        }
+
+        .lightwave {
+            background: #D4A574;
+            color: white;
+            border: 3px solid #5A4D41;
+            width: 100px;
+            height: 100px;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            color: #8B7D6B;
+            font-weight: bold;
+        }
+
+        .axis-x-left {
+            bottom: -25px;
+            left: 10px;
+        }
+
+        .axis-x-right {
+            bottom: -25px;
+            right: 10px;
+        }
+
+        .axis-y-bottom {
+            left: -120px;
+            bottom: 10px;
+            width: 100px;
+            text-align: right;
+        }
+
+        .axis-y-top {
+            left: -120px;
+            top: 10px;
+            width: 100px;
+            text-align: right;
+        }
+
+        .strategy-timeline {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .timeline-item {
+            background: linear-gradient(135deg, #F5F3F0 0%, #E8DCC8 100%);
+            padding: 20px;
+            border-radius: 6px;
+            border-top: 3px solid #D4A574;
+            text-align: center;
+        }
+
+        .timeline-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #D4A574;
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #5A4D41;
+            margin-bottom: 10px;
+        }
+
+        .timeline-text {
+            font-size: 13px;
+            color: #8B7D6B;
+            line-height: 1.6;
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, #D4A574 0%, #C9A876 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 6px;
+            margin: 30px 0;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .insight-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .list {
+            margin-left: 20px;
+            margin-top: 15px;
+        }
+
+        .list li {
+            margin-bottom: 10px;
+            list-style-position: inside;
+        }
+
+        footer {
+            background: #5A4D41;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+            font-size: 14px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th {
+            background: #5A4D41;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #D4A574;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #F5F3F0;
+        }
+
+        .highlight {
+            background: #D4A574;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 28px;
+            }
+
+            .info-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .strategy-timeline {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ライトウェーブ諏訪店</h1>
+        <p>ローカル分析レポート - インタラクティブ版</p>
+        <div class="info-bar">
+            <div>📍 調査エリア：諏訪市・茅野市・岡谷市（半径2〜5km圏内）</div>
+            <div>📊 競合サロン数：16店舗</div>
+            <div>📅 調査期間：2026年3月</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- セクション1: 市場概要 -->
+        <section>
+            <h2>📊 市場構成と競合分析</h2>
+            <p style="margin-bottom: 20px; color: #8B7D6B;">
+                諏訪エリアの美容サロン市場は、小規模個人サロンが中心です。以下は市場構成と各セグメントの特徴です。
+            </p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>個人美容サロン</h4>
+                    <p><strong>12店舗</strong></p>
+                    <p>ネイル、まつげ、脱毛などの単一ジャンル中心</p>
+                    <p style="margin-top: 10px; font-size: 12px;">平均Google口コミ：12件</p>
+                </div>
+                <div class="card">
+                    <h4>痩身エステ専門店</h4>
+                    <p><strong>3店舗</strong></p>
+                    <p>ダイエット、ボディケアに特化</p>
+                    <p style="margin-top: 10px; font-size: 12px;">平均Google口コミ：8件</p>
+                </div>
+                <div class="card">
+                    <h4>🏆 ライトウェーブ</h4>
+                    <p><strong>唯一の総合美容サロン</strong></p>
+                    <p>エステ、脱毛、まつげ、ネイルの複合美容</p>
+                    <p style="margin-top: 10px; font-size: 12px;">Google口コミ：22件</p>
+                </div>
+            </div>
+
+            <h3>競合の強み（口コミから見える評価軸）</h3>
+            <div class="chart-container">
+                <canvas id="strengthChart" width="2552" height="700" style="display: block; box-sizing: border-box; height: 350px; width: 1276px;"></canvas>
+            </div>
+
+            <h3>競合が見落としている課題</h3>
+            <div class="chart-container">
+                <canvas id="weaknessChart" width="2552" height="700" style="display: block; box-sizing: border-box; height: 350px; width: 1276px;"></canvas>
+            </div>
+        </section>
+
+        <!-- セクション2: 顧客動機分析 -->
+        <section>
+            <h2>🎯 顧客が選ぶ5つの理由</h2>
+            <p style="margin-bottom: 20px; color: #8B7D6B;">
+                口コミ分析から、顧客の来店動機を5つのカテゴリに分類しました。30〜40代女性の多様なニーズが見えます。
+            </p>
+
+            <div class="chart-container">
+                <canvas id="motivationChart" width="2552" height="700" style="display: block; box-sizing: border-box; height: 350px; width: 1276px;"></canvas>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">💡 重要な洞察</div>
+                <p>30〜40代女性は「美容悩み解決（28%）」と「リラックス・癒し（24%）」の両立を求めています。これはライトウェーブのフェイシャルエステが最適なポジショニングであることを示唆しています。</p>
+            </div>
+        </section>
+
+        <!-- セクション3: ポジショニングマップ -->
+        <section>
+            <h2>🗺️ ポジショニングマップ</h2>
+            <p style="margin-bottom: 20px; color: #8B7D6B;">
+                横軸：サービス範囲（単一ジャンル ← → 複合美容）
+                <br>
+                縦軸：市場規模・ブランド力（個人店 ← → チェーン店）
+            </p>
+
+            <div class="positioning-map">
+                <!-- 軸ラベル -->
+                <div class="axis-label axis-x-left">単一ジャンル</div>
+                <div class="axis-label axis-x-right">複合美容</div>
+                <div class="axis-label axis-y-bottom">個人店</div>
+                <div class="axis-label axis-y-top">チェーン店</div>
+
+                <!-- 競合サロン -->
+                <div class="positioning-item competitor" style="left: 10%; top: 20%;">
+                    <div>個人サロン</div>
+                    <div style="font-size: 10px; margin-top: 5px;">ネイル</div>
+                </div>
+                <div class="positioning-item competitor" style="left: 15%; top: 15%;">
+                    <div>個人サロン</div>
+                    <div style="font-size: 10px; margin-top: 5px;">まつげ</div>
+                </div>
+                <div class="positioning-item competitor" style="left: 20%; top: 25%;">
+                    <div>個人サロン</div>
+                    <div style="font-size: 10px; margin-top: 5px;">脱毛</div>
+                </div>
+                <div class="positioning-item competitor" style="left: 35%; top: 30%;">
+                    <div>痩身エステ</div>
+                    <div style="font-size: 10px; margin-top: 5px;">専門店</div>
+                </div>
+
+                <!-- ライトウェーブ -->
+                <div class="positioning-item lightwave" style="right: 10%; top: 10%;">
+                    <div>ライトウェーブ</div>
+                    <div style="font-size: 11px; margin-top: 8px;">総合美容</div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">💡 重要な洞察</div>
+                <p>ライトウェーブは「総合美容サロン」として、競合と全く異なるポジションを占めています。これが最大の差別化要因です。</p>
+            </div>
+        </section>
+
+        <!-- セクション4: ライトウェーブの優位性 -->
+        <section>
+            <h2>🏆 競合比較で見える5つの強み</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>強み</th>
+                        <th>ライトウェーブ</th>
+                        <th>競合サロン</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>サービス範囲</strong></td>
+                        <td><span class="highlight">複合美容</span>（エステ・脱毛・ネイル・まつげ）</td>
+                        <td>単一ジャンル（ネイルのみ など）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>店舗環境</strong></td>
+                        <td><span class="highlight">完全個室</span>で他のお客様に会わない安心感</td>
+                        <td>共有スペース、スタッフの固定性が低い</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ブランド力</strong></td>
+                        <td><span class="highlight">30周年の実績</span>、全国導入の最新機器</td>
+                        <td>小規模個人店、地域限定</td>
+                    </tr>
+                    <tr>
+                        <td><strong>技術領域</strong></td>
+                        <td><span class="highlight">多角的な技術</span>（IPL脱毛、フェイシャル、ネイル）</td>
+                        <td>特定メニューに特化</td>
+                    </tr>
+                    <tr>
+                        <td><strong>顧客単価</strong></td>
+                        <td><span class="highlight">1来店で複数施術</span>が可能</td>
+                        <td>単一メニューのみ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- セクション5: フェイシャルエステ戦略 -->
+        <section>
+            <h2>💄 30〜40代女性のニーズに最適なメニュー</h2>
+            <p style="margin-bottom: 20px; color: #8B7D6B;">
+                フェイシャルエステが勝ち筋である理由
+            </p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>年齢層ニーズの合致</h4>
+                    <p>主な悩み：シミ、くすみ、毛穴、ハリ不足</p>
+                    <p style="margin-top: 10px; color: #D4A574; font-weight: bold;">競合が少ない</p>
+                </div>
+                <div class="card">
+                    <h4>複合美容への入口</h4>
+                    <p>脱毛 → フェイシャル → ネイルへの流れ</p>
+                    <p style="margin-top: 10px; color: #D4A574; font-weight: bold;">顧客単価向上</p>
+                </div>
+                <div class="card">
+                    <h4>リピート率の向上</h4>
+                    <p>月1回程度のメンテナンスで継続来店</p>
+                    <p style="margin-top: 10px; color: #D4A574; font-weight: bold;">安定収益化</p>
+                </div>
+                <div class="card">
+                    <h4>口コミの質の向上</h4>
+                    <p>ビフォーアフターが視覚的に分かりやすい</p>
+                    <p style="margin-top: 10px; color: #D4A574; font-weight: bold;">SNS映え</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- セクション6: 3段階成長戦略 -->
+        <section>
+            <h2>📈 ライトウェーブ諏訪店の3段階成長戦略</h2>
+            <p style="margin-bottom: 20px; color: #8B7D6B;">
+                3ヶ月で認知拡大と集客UPを実現するための段階的なアプローチ
+            </p>
+
+            <div class="strategy-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-title">フェイシャルエステの強化</div>
+                    <div class="timeline-text">
+                        <strong>1ヶ月目</strong><br>
+                        30〜40代女性をターゲット<br>
+                        競合が少ない、年齢層ニーズに合致
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-title">複合美容の提案</div>
+                    <div class="timeline-text">
+                        <strong>2ヶ月目</strong><br>
+                        初回来店時：フェイシャルで信頼構築<br>
+                        2回目以降：脱毛、ネイル、まつげへのクロスセル
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-title">SNS・口コミの活用</div>
+                    <div class="timeline-text">
+                        <strong>3ヶ月目</strong><br>
+                        ビフォーアフター投稿で効果の可視化<br>
+                        Instagram更新頻度を上げ、来店導線を強化
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">💡 実行ポイント</div>
+                <ul class="list">
+                    <li><strong>月1：</strong>フェイシャルエステの認知強化（Instagram投稿 週3回以上）、ビフォーアフター投稿の開始、Google口コミ増加キャンペーン</li>
+                    <li><strong>月2：</strong>複合美容の提案強化、インフルエンサー・口コミキャンペーン、定期来店顧客の増加</li>
+                    <li><strong>月3：</strong>効果測定と改善（Instagram分析、来店数分析）、継続的なSNS発信の定着化、リピート率の向上</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- セクション7: まとめ -->
+        <section>
+            <h2>🎯 まとめ</h2>
+
+            <h3>市場の現状</h3>
+            <ul class="list">
+                <li>小規模美容サロン中心</li>
+                <li>エステ専門店が少ない</li>
+                <li>総合美容サロンが少ない</li>
+                <li>SNS発信が弱い（集客導線の弱さが最大の課題）</li>
+            </ul>
+
+            <h3>ライトウェーブの優位性</h3>
+            <ul class="list">
+                <li>総合美容サロンとして差別化可能</li>
+                <li>30〜40代女性のニーズに合致したフェイシャルエステ</li>
+                <li>完全個室・担当制による上質な体験</li>
+                <li>複合美容による顧客単価向上</li>
+            </ul>
+
+            <h3>勝ち筋</h3>
+            <ul class="list">
+                <li><strong>1.</strong> フェイシャルエステを主軸に、30〜40代女性を獲得</li>
+                <li><strong>2.</strong> 複合美容の提案で顧客単価を向上</li>
+                <li><strong>3.</strong> SNS・口コミの活用で認知を拡大</li>
+                <li><strong>4.</strong> 3ヶ月で認知拡大と集客UPを実現</li>
+            </ul>
+
+            <div class="insight-box">
+                <div class="insight-title">🎯 最終メッセージ</div>
+                <p>「競合との差別化」と「ターゲット層への集中」が、ライトウェーブ諏訪店の成功の鍵です。総合美容サロンとしての強みを活かし、SNS発信を強化することで、3ヶ月での成長が十分に可能です。</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 ライトウェーブ諏訪店 ローカル分析レポート | データは2026年3月時点の調査に基づいています</p>
+    </footer>
+
+    <script>
+        // 競合の強み（棒グラフ）
+        const strengthCtx = document.getElementById('strengthChart').getContext('2d');
+        new Chart(strengthCtx, {
+            type: 'bar',
+            data: {
+                labels: ['技術力', '接客・人柄', '居心地・空間', '効果実感'],
+                datasets: [{
+                    label: '口コミ頻出度',
+                    data: [45, 52, 38, 41],
+                    backgroundColor: ['#D4A574', '#C9A876', '#BF9D78', '#B5927A'],
+                    borderColor: '#5A4D41',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 60
+                    }
+                }
+            }
+        });
+
+        // 競合の弱み（横棒グラフ）
+        const weaknessCtx = document.getElementById('weaknessChart').getContext('2d');
+        new Chart(weaknessCtx, {
+            type: 'bar',
+            data: {
+                labels: ['技術のばらつき', '予約・利便性', 'SNS・情報発信'],
+                datasets: [{
+                    label: '問題の頻出度',
+                    data: [8, 12, 16],
+                    backgroundColor: ['#E8DCC8', '#D4C4B0', '#BFB4A0'],
+                    borderColor: '#5A4D41',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 20
+                    }
+                }
+            }
+        });
+
+        // 顧客動機（円グラフ）
+        const motivationCtx = document.getElementById('motivationChart').getContext('2d');
+        new Chart(motivationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['美容悩み解決', 'リラックス・癒し', '紹介', '価格', '継続的な通い'],
+                datasets: [{
+                    data: [28, 24, 18, 16, 14],
+                    backgroundColor: ['#D4A574', '#C9A876', '#BF9D78', '#B5927A', '#AA877C'],
+                    borderColor: '#F5F3F0',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+
+
+</body></html>
